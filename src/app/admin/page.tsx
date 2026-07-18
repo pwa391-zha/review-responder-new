@@ -173,7 +173,6 @@ export default function AdvancedAdminDashboard() {
   const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
 
   // Synchronize HTML data-theme setup to guarantee accurate element background adjustments
-  // ⚡ <body> ရဲ့ class ပြောင်းလဲမှုကို စောင့်ကြည့်မည့် စနစ်သစ်ကို ဒီနားမှာ Paste ချလိုက်ပါ
   useEffect(() => {
     const isDark = document.body.classList.contains('dark-mode-active') || localStorage.getItem('theme') === 'dark';
     setTheme(isDark ? 'dark' : 'light');
@@ -193,30 +192,24 @@ export default function AdvancedAdminDashboard() {
 
   // ⚡ Component စဖွင့်ချင်း ဒေတာဆွဲမည် + Supabase Real-time စနစ် ချိတ်ဆက်မည်
   useEffect(() => {
-    // ၁။ မူရင်း ဒေတာဟောင်းတွေကို အရင်ဆွဲယူမည်
     fetchReviews();
 
-    // ၂။ Supabase ကနေ Reviews Table ထဲ ဒေတာအသစ် INSERT ဖြစ်လာတိုင်း အလိုအလျောက် သိရှိစေရန်
     const channel = supabase
       .channel('realtime-reviews-channel')
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',   // ဒေတာအသစ် ဝင်လာတဲ့ အခါတိုင်း
+          event: 'INSERT',   
           schema: 'public',
-          table: 'reviews'   // reviews table ထဲကို
+          table: 'reviews'   
         },
         (payload) => {
           console.log('🔄 ဒေတာအသစ် Real-time ရရှိပါပြီ - ', payload.new);
-          
-          // 💡 ၄ ကြယ်၊ ၅ ကြယ် အားလုံး UI ပေါ်မှာ လုံးဝမကျန်ဘဲ ကွက်တိ ချက်ချင်းပေါ်လာအောင် 
-          // ဒေတာအသစ်ဝင်လာတာနဲ့ fetchReviews() ကို Background မှာ လှမ်းခေါ်ခိုင်းလိုက်ခြင်း ဖြစ်ပါတယ်
           fetchReviews(); 
         }
       )
       .subscribe();
 
-    // ၃။ Component အလုပ်ပိတ်သွားရင် Channel ကို ပြန်ဖျက်ပေးခြင်း
     return () => {
       supabase.removeChannel(channel);
     };
@@ -335,12 +328,11 @@ export default function AdvancedAdminDashboard() {
   };
 
   // 📝 Custom Preset Manager Functions
- 
-    if (currentPlan === 'pro') {
+  const openPresetManager = () => {
+    if ((currentPlan as any) === 'Starter' || (currentPlan as any) === 'pro') {
       alert("🔒 Custom Template Configuration requires the Premium Enterprise Plan.");
       return;
     }
-    // ဒီအောက်မှာ သင့်ရဲ့ မူရင်း code အဟောင်းတွေ (ဒိုင်ယာလော့ဂ်ဖွင့်တဲ့ code) ရှိနေပါလိမ့်မယ်...
     setTempPresets(JSON.parse(JSON.stringify(editablePresets)));
     setShowPresetManager(true);
   };
@@ -418,7 +410,7 @@ export default function AdvancedAdminDashboard() {
 
   // ❌ Opens Premium Custom Delete Confirmation Dialog Modal
   const openRemoveConfirmDialog = (branchName: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevents triggers from background layouts
+    e.stopPropagation(); 
     setRemoveNodeDialog({
       open: true,
       branchName: branchName
@@ -429,11 +421,9 @@ export default function AdvancedAdminDashboard() {
   const confirmExecuteRemoveNode = () => {
     const target = removeNodeDialog.branchName;
     if (target) {
-      // Clean up array using precise dynamic immutable filter references
       const cleanedStats = branchStats.filter(b => b.name !== target);
       setBranchStats(cleanedStats);
       
-      // Reset active filter indexes if the currently filtered branch is deleted
       if (selectedBranchFilter === target) {
         setSelectedBranchFilter('all');
         applyCombinedFilters(reviews, activeFilter, 'all', timeFilter, searchQuery);
@@ -464,7 +454,6 @@ export default function AdvancedAdminDashboard() {
   };
 
   const calculateBranchStats = (data: Review[]) => {
-    // If user has already initialized active configurations, preserve active list elements
     if (branchStats.length > 0) return;
 
     const branchesMap: { [key: string]: { totalRating: number; count: number } } = {};
@@ -495,7 +484,6 @@ export default function AdvancedAdminDashboard() {
   const applyCombinedFilters = (allReviews: Review[], ratingType: string, branchType: string, timeType: string, query: string) => {
     setChartRendered(false);
     
-    // 💡 [၁] Starter Plan ဖြစ်ပါက ဒေါင်းလုဒ်ဆွဲထားသမျှ Review တွေထဲက အတိတ် ၇ ရက်စာပဲ အရင်ဆုံး ဖြတ်ထုတ်ပစ်ပါမည်
     let planFiltered = [...allReviews];
     if (currentPlan === 'Starter') {
       const now = new Date();
@@ -503,7 +491,7 @@ export default function AdvancedAdminDashboard() {
         const itemDate = new Date(r.created_at);
         const diffTime = Math.abs(now.getTime() - itemDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays <= 7; // ၇ ရက်ထက် ကျော်တာတွေကို အော်တို ဖျောက်ချပစ်ခြင်း
+        return diffDays <= 7; 
       });
     }
 
@@ -525,7 +513,6 @@ export default function AdvancedAdminDashboard() {
     calculateBranchStats(timeFiltered);
     let branchAndTimeFiltered = [...timeFiltered];
     
-    // 💡 [၂] Starter Plan ဖြစ်ပါက Branch Type ဘာပဲရွေးရွေး 'Main Branch' တစ်ခုတည်းစာပဲ ဇယားထဲ ဖြတ်ပြပါမည်
     if (currentPlan === 'Starter') {
       branchAndTimeFiltered = branchAndTimeFiltered.filter(r => (r.branch_name || 'Main Branch') === 'Main Branch');
     } else if (branchType !== 'all') {
@@ -638,7 +625,6 @@ export default function AdvancedAdminDashboard() {
   const paginatedReviews = filteredReviews.slice(startIndex, startIndex + itemsPerPage);
   const emptyRowsCount = itemsPerPage - paginatedReviews.length;
 
-  // Dynamic Google-Standard range calculator
   const getPaginationRange = () => {
     const current = currentPage;
     const total = totalPages;
@@ -723,13 +709,12 @@ export default function AdvancedAdminDashboard() {
         {/* Menu Row Controls */}
         <div className="flex flex-wrap items-center gap-3">
           
-          {/* ⚡ Auto-Pilot ကို Plan အားလုံးမှာ ပြသထားပြီး Starter/Pro ဆိုလျှင် Lock ချမည့်ပုံစံ */}
           <div 
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all" 
             style={
               currentPlan !== 'Enterprise'
-                ? { backgroundColor: 'rgba(15, 23, 42, 0.4)', border: '1px solid #334155', opacity: 0.6 } // Starter/Pro အတွက် မှိန်သွားမည့် Lock Style
-                : { backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)' } // Enterprise မူရင်း Style
+                ? { backgroundColor: 'rgba(15, 23, 42, 0.4)', border: '1px solid #334155', opacity: 0.6 } 
+                : { backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)' } 
             }
           >
             <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: currentPlan !== 'Enterprise' ? '#64748b' : 'var(--text-indigo)' }}>
@@ -750,14 +735,13 @@ export default function AdvancedAdminDashboard() {
             />
           </div>
 
-          {/* 👇 Preset Templates Button - Starter, pro နှစ်ခုစလုံးမှာ Lock အလုပ်လုပ်စေဖို့ currentPlan !== 'Enterprise' ဖြင့် ပြင်ဆင်ထားပါတယ် */}
           <button 
             onClick={openPresetManager}
             className="px-3 py-1.5 text-xs font-bold rounded-xl cursor-pointer transition-colors flex items-center gap-1"
             style={
               currentPlan !== 'Enterprise' 
-                ? { backgroundColor: 'rgba(15, 23, 42, 0.4)', border: '1px solid #334155', color: '#64748b' } // 🔒 Starter နှင့် Pro ဆိုရင် မှိန်သွားမည့် Style
-                : { backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' } // Enterprise မူရင်း Style
+                ? { backgroundColor: 'rgba(15, 23, 42, 0.4)', border: '1px solid #334155', color: '#64748b' } 
+                : { backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' } 
             }
           >
             {currentPlan !== 'Enterprise' ? '🔒 Preset Templates (Enterprise)' : '📋 Manage Presets'}
@@ -891,7 +875,7 @@ export default function AdvancedAdminDashboard() {
                   </div>
                 </div>
 
-                {/* 🏢 Branch Leaderboard Section (With Full Screen & Stable Remove Triggers) */}
+                {/* 🏢 Branch Leaderboard Section */}
                 <div className="transition-colors duration-200 border p-5 rounded-xl" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
                   <div className="flex flex-col gap-2 mb-4">
                     <div className="flex justify-between items-center">
@@ -908,7 +892,6 @@ export default function AdvancedAdminDashboard() {
                       </button>
                     </div>
                     
-                    {/* 🔍 FULL SCREEN TOGGLE LINK (Added for multi-branch layouts view visibility) */}
                     <button
                       type="button"
                       onClick={() => setIsNodeFullScreen(true)}
@@ -939,7 +922,6 @@ export default function AdvancedAdminDashboard() {
                               <div className="flex items-center justify-between">
                                 <span className="text-xs font-bold block" style={{ color: 'var(--text-primary)' }}>{branch.name}</span>
                                 
-                                {/* ❌ Custom Stable Remove Trigger */}
                                 <button
                                   type="button"
                                   onClick={(e) => openRemoveConfirmDialog(branch.name, e)}
@@ -985,10 +967,9 @@ export default function AdvancedAdminDashboard() {
                           value={timeFilter}
                           onChange={(e) => {
                             const selectedValue = e.target.value;
-                            // 💡 Starter Plan ဖြစ်ပြီး All-Time သို့မဟုတ် Past 30 Days ကို ရွေးလျှင် Alert ပြပြီး ပိတ်ချလိုက်မည်
                             if (currentPlan === 'Starter' && (selectedValue === 'all' || selectedValue === 'month')) {
                               alert("🔒 Viewing analytics records beyond 7 days requires the Pro or Enterprise Plan.");
-                              return; // အလုပ်ဆက်မလုပ်ဘဲ ဒီမှာတင် ဖြတ်ချလိုက်ခြင်း
+                              return; 
                             }
                             handleTimeFilterChange(selectedValue as any);
                           }}
@@ -1030,23 +1011,15 @@ export default function AdvancedAdminDashboard() {
                     <table className="w-full text-left border-collapse m-0 table-fixed">
                       <thead>
                         <tr className="border-b" style={{ borderColor: 'var(--border-color)' }}>
-                          {/* Target Node Column - ဖုန်းရော Laptop ပါ ပေါ်မည် */}
                           <th className="p-4 text-[11px] font-bold uppercase tracking-wider w-[40%] sm:w-[30%]" style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-secondary)' }}>Target Node Address</th>
-                          
-                          {/* Score Rating Column - hidden sm:table-cell ကြောင့် ဖုန်းမှာ ကွယ်သွားပြီး Laptop ကျမှ ပေါ်မည် */}
                           <th className="hidden sm:table-cell p-4 text-[11px] font-bold uppercase tracking-wider w-[15%]" style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-secondary)' }}>Score Rating</th>
-                          
-                          {/* Intercepted Feed Text Column - hidden sm:table-cell ကြောင့် ဖုန်းမှာ ကွယ်သွားပြီး Laptop ကျမှ ပေါ်မည် */}
                           <th className="hidden sm:table-cell p-4 text-[11px] font-bold uppercase tracking-wider w-[35%]" style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-secondary)' }}>Intercepted Feed Text</th>
-                          
-                          {/* Control Action Column - ဖုန်းရော Laptop ပါ ပေါ်မည် */}
                           <th className="p-4 text-[11px] font-bold uppercase tracking-wider w-[60%] sm:w-[20%] text-right" style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-secondary)' }}>Control Action</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
                         {paginatedReviews.length === 0 ? (
                           <tr>
-                            {/* colSpan={2} sm:colSpan={4} ကြောင့် ဖုန်းမှာ ၂ တိုင်စာ၊ Laptop မှာ ၄ တိုင်စာ အလိုအလျောက် ညှိပါသည် */}
                             <td colSpan={2} className="sm:colSpan-4 p-12 text-center text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
                               No review indices discovered matching active configuration profiles.
                             </td>
@@ -1065,12 +1038,10 @@ export default function AdvancedAdminDashboard() {
 
                             return (
                               <tr key={review.id} className="h-[76px] hover:bg-slate-500/5 transition-colors">
-                                {/* ၁။ Target Node Address (Email နေရာ) */}
                                 <td className="p-4 text-xs truncate">
                                   <span className="block truncate font-bold" style={{ color: review.email ? '#38bdf8' : 'var(--text-secondary)' }}>
                                     {review.email === 'NO_EMAIL_DIRECT_GOOGLE' ? 'direct-google-reviewer@gmail.com' : (review.email || 'Anonymous Patient Node')}
                                   </span>
-                                  {/* hidden sm:flex ကြောင့် Branch နှင့် ရက်စွဲကို ဖုန်းမှာ ဖျောက်ထားပြီး Laptop ကျမှ ပြပါမည် */}
                                   <div className="hidden sm:flex items-center gap-2 mt-1 text-[10px]" style={{ color: 'var(--text-secondary)' }}>
                                     <span className="font-extrabold uppercase px-1 rounded bg-slate-500/10">{review.branch_name || 'Main Branch'}</span>
                                     <span>•</span>
@@ -1078,7 +1049,6 @@ export default function AdvancedAdminDashboard() {
                                   </div>
                                 </td>
 
-                                {/* ၂။ Score Rating (ကြယ်ပွင့်နေရာ) - hidden sm:table-cell ကြောင့် ဖုန်းမှာ ကွယ်ထားပါမည် */}
                                 <td className="hidden sm:table-cell p-4">
                                   <div className={`px-2 py-0.5 font-bold rounded text-xs inline-flex items-center gap-0.5 ${starBadgeColor}`}>
                                     <span>{review.rating}</span>
@@ -1086,7 +1056,6 @@ export default function AdvancedAdminDashboard() {
                                   </div>
                                 </td>
 
-                                {/* ၃။ Intercepted Feed Text (Comment နေရာ) - hidden sm:table-cell ကြောင့် ဖုန်းမှာ ကွယ်ထားပါမည် */}
                                 <td className="hidden sm:table-cell p-4 text-xs font-medium whitespace-normal break-words">
                                   <p className="m-0 leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                                     {displayComment}
@@ -1101,14 +1070,12 @@ export default function AdvancedAdminDashboard() {
                                   )}
                                 </td>
 
-                                {/* ၄။ Control Action (ခလုတ် သို့မဟုတ် Badge နေရာ) */}
                                 <td className="p-4 text-right">
                                   {review.is_replied ? (
                                     <div className="inline-flex items-center gap-1 bg-emerald-500/10 border border-solid border-emerald-500/20 text-emerald-500 px-2.5 py-1 rounded-xl text-[11px] font-bold">
                                       <span>✓ Handled</span>
                                     </div>
                                   ) : review.email === 'NO_EMAIL_DIRECT_GOOGLE' ? (
-                                    /* ၄၊ ၅ စတားများအတွက် နေရာမပုပ်အောင် ပိုတိုပြီး လှပသော Badge ပြောင်းထားပါသည် */
                                     <span style={{ 
                                       display: 'inline-block', 
                                       padding: '6px 12px', 
@@ -1122,7 +1089,6 @@ export default function AdvancedAdminDashboard() {
                                       ⚡ Google Direct
                                     </span>
                                   ) : (
-                                    /* ၁၊ ၂၊ ၃ စတားများအတွက် မူရင်း ခလုတ် */
                                     <button
                                       onClick={() => {
                                         setSelectedReview(review);
@@ -1143,11 +1109,9 @@ export default function AdvancedAdminDashboard() {
                           })
                         )}
 
-                        {/* Structural Height Padding Filler Framework */}
                         {paginatedReviews.length > 0 && emptyRowsCount > 0 && (
                           Array.from({ length: emptyRowsCount }).map((_, idx) => (
                             <tr key={`filler-row-${idx}`} className="h-[76px] opacity-10 border-none pointer-events-none">
-                              {/* colSpan={2} sm:colSpan={4} ကြောင့် Filler Row ကိုပါ ဖုန်းနှင့် Laptop အလိုအလျောက် ညှိပါသည် */}
                               <td colSpan={2} className="sm:colSpan-4 p-4 text-[11px] italic" style={{ color: 'var(--text-secondary)' }}>- Open Index Container Slot -</td>
                               <td className="hidden sm:table-cell p-4"></td>
                               <td className="hidden sm:table-cell p-4"></td>
@@ -1218,7 +1182,7 @@ export default function AdvancedAdminDashboard() {
       {/* MODAL CONFIGURATION MODULES                                               */}
       {/* ========================================================================= */}
 
-      {/* 🏢 Modal 1: Deploy & Map Branch Node Directory (Add New Node Pop-up) */}
+      {/* 🏢 Modal 1: Deploy & Map Branch Node Directory */}
       {showBranchModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
           <div className="w-full max-w-2xl rounded-2xl p-6 space-y-4 border border-solid shadow-2xl animate-in fade-in zoom-in-95 duration-150" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
@@ -1265,7 +1229,7 @@ export default function AdvancedAdminDashboard() {
         </div>
       )}
 
-      {/* 🌐 Full Screen Multi-Branch Matrix Console Modal/Section */}
+      {/* 🌐 Full Screen Multi-Branch Matrix Console Modal */}
       {isNodeFullScreen && (
         <>
           {/* 🌑 1. DARK MODE VERSION */}
@@ -1422,7 +1386,7 @@ export default function AdvancedAdminDashboard() {
         </>
       )}
 
-      {/* ❌ PREMIUM CUSTOM REMOVE CONFIRMATION MODAL DIALOG (Replaces basic native alert frames safely) */}
+      {/* ❌ PREMIUM CUSTOM REMOVE CONFIRMATION MODAL DIALOG */}
       {removeNodeDialog.open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
           <div 
