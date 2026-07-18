@@ -335,7 +335,7 @@ export default function AdvancedAdminDashboard() {
   };
 
   // 📝 Custom Preset Manager Functions
-  const openPresetManager = () => {
+ 
     if (currentPlan === 'pro') {
       alert("🔒 Custom Template Configuration requires the Premium Enterprise Plan.");
       return;
