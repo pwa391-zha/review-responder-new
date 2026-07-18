@@ -340,12 +340,13 @@ export default function OwnerDashboard() {
   };
 
   // 📝 Custom Preset Manager Functions
-  const openPresetManager = () => {
-    // 💡 Starter ရော pro ပါဝင်ရင် ဒိုင်ယာလော့ဂ်မပွင့်ဘဲ Lock Alert တန်းပြရန် ပြောင်းလဲလိုက်ခြင်းဖြစ်ပါတယ်
-    if (currentPlan === 'Starter' || currentPlan === 'Pro') {
+    const openPresetManager = () => {
+    // 💡 Enterprise မဟုတ်ရင် Alert တန်းပြပြီး ပိတ်လိုက်တဲ့ logic ပြောင်းလိုက်တာပါ
+    if (currentPlan !== 'Enterprise') {
       alert("🔒 Custom Template Configuration requires the Premium Enterprise Plan.");
       return;
     }
+  }
     setTempPresets(JSON.parse(JSON.stringify(editablePresets)));
     setShowPresetManager(true);
   };
