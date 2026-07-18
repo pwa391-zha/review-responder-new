@@ -751,7 +751,7 @@ export default function AdvancedAdminDashboard() {
        
           <div className="flex items-center gap-1 p-0.5 rounded-xl" style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
             <button onClick={() => setCurrentPlan('Starter')} className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border-none cursor-pointer transition-all ${currentPlan === 'Starter' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 bg-transparent'}`}>Starter</button>
-            <button onClick={() => setCurrentPlan('Pro')} className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border-none cursor-pointer transition-all ${currentPlan === 'pro' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 bg-transparent'}`}>Pro</button>
+            <button onClick={() => setCurrentPlan('Pro')} className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border-none cursor-pointer transition-all ${currentPlan === 'Pro' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 bg-transparent'}`}>Pro</button>
             <button onClick={() => setCurrentPlan('Enterprise')} className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border-none cursor-pointer transition-all ${currentPlan === 'Enterprise' ? 'bg-indigo-600 text-white shadow-sm' : 'text-white bg-transparent'}`}>💎 Enterprise</button>
           </div>
         </div>
