@@ -335,14 +335,12 @@ export default function AdvancedAdminDashboard() {
   };
 
   // 📝 Custom Preset Manager Functions
-  338 |   const openPresetManager = () => {
-  339 |     // 💡 Starter ဆိုတာ မရှိတော့တဲ့အတွက် "pro" ဖြစ်နေရင် Lock Alert ပြရန် ပြင်လိုက်ပါတယ်
-> 340 |     // 💡 အရင်က line 340 အဟောင်း: if (currentPlan === 'Starter' || currentPlan === 'Pro')
-// 💡 အခု အသစ်ပြောင်းရမည့်ပုံစံ:
-if (currentPlan === 'pro') {
-  alert("🔒 Custom Template Configuration requires the Premium Enterprise Plan.");
-  return;
-}
+  const openPresetManager = () => {
+    if (currentPlan === 'pro') {
+      alert("🔒 Custom Template Configuration requires the Premium Enterprise Plan.");
+      return;
+    }
+    // ဒီအောက်မှာ သင့်ရဲ့ မူရင်း code အဟောင်းတွေ (ဒိုင်ယာလော့ဂ်ဖွင့်တဲ့ code) ရှိနေပါလိမ့်မယ်...
     setTempPresets(JSON.parse(JSON.stringify(editablePresets)));
     setShowPresetManager(true);
   };
