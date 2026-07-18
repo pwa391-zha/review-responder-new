@@ -67,8 +67,8 @@ export default function AdvancedAdminDashboard() {
   }, []);
 
   // 💎 Plan Tier ('Starter' | 'pro' | 'Enterprise') - TypeScript Error မတက်အောင် 'pro' ကို ဖြည့်စွက်သတ်မှတ်ပေးလိုက်ပါတယ်
-  const [planTier, setPlanTier] = useState<'Starter' | 'pro' | 'Enterprise'>('Enterprise');
-  const [currentPlan, setCurrentPlan] = useState<'Starter' | 'pro' | 'Enterprise'>('Enterprise');
+ const [planTier, setPlanTier] = useState<'Starter' | 'Pro' | 'Enterprise'>('Enterprise');
+  const [currentPlan, setCurrentPlan] = useState<'Starter' | 'Pro' | 'Enterprise'>('Enterprise');
   
   // ⚡ Auto-Pilot AI Automation Mode
   const [autoPilotMode, setAutoPilotMode] = useState<boolean>(false);
@@ -329,10 +329,12 @@ export default function AdvancedAdminDashboard() {
 
   // 📝 Custom Preset Manager Functions
   const openPresetManager = () => {
-    if ((currentPlan as any) === 'Starter' || (currentPlan as any) === 'Pro') {
+    // 💡 Enterprise မဟုတ်လျှင် (Starter သို့မဟုတ် pro ဖြစ်လျှင်) Lock Alert တန်းပြရန် ပြောင်းလဲလိုက်ခြင်းဖြစ်ပါတယ်
+    if (currentPlan !== 'Enterprise') {
       alert("🔒 Custom Template Configuration requires the Premium Enterprise Plan.");
       return;
     }
+    
     setTempPresets(JSON.parse(JSON.stringify(editablePresets)));
     setShowPresetManager(true);
   };
