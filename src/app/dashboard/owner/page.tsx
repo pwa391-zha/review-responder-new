@@ -342,7 +342,7 @@ export default function OwnerDashboard() {
   // 📝 Custom Preset Manager Functions
   const openPresetManager = () => {
     // 💡 Starter ရော pro ပါဝင်ရင် ဒိုင်ယာလော့ဂ်မပွင့်ဘဲ Lock Alert တန်းပြရန် ပြောင်းလဲလိုက်ခြင်းဖြစ်ပါတယ်
-    if (currentPlan === 'Starter' || currentPlan === 'pro') {
+    if (currentPlan === 'Starter' || currentPlan === 'Pro') {
       alert("🔒 Custom Template Configuration requires the Premium Enterprise Plan.");
       return;
     }
